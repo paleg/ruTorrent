@@ -117,6 +117,45 @@ class rRSS
 		return($ret);
 	}
 
+	public function convertLostFilm( $href ) {
+		$result = array();
+#error_log("lostfilm.tv convertion");
+		$cli = self::fetchURL(Snoopy::linkencode($href),$this->cookies);
+		if ($cli->status != 200) {
+			return(false);
+		}
+		preg_match("/PlayEpisode\('(?P<id>\d+)','(?P<season>\d+)','(?P<episode>\d+)'\)/", $cli->results, $matches);
+#error_log("matches - ".print_r($matches, true));
+		$href = "http://www.lostfilm.tv/v_search.php?c=".$matches['id']."&s=".$matches['season']."&e=".$matches['episode'];
+#error_log("play href - ".print_r($href, true));
+		$cli = self::fetchURL(Snoopy::linkencode($href),$this->cookies);
+		if ($cli->status != 200) {
+			return(false);
+		}
+		preg_match("/location.replace\(\"(?P<url>.*)\"\)/", $cli->results, $matches);
+		$href = $matches["url"];
+#error_log("redirect href - ".print_r($href, true));
+		$cli = self::fetchURL(Snoopy::linkencode($href),$this->cookies);
+		if ($cli->status != 200) {
+			return(false);
+		}
+		$dom = new DOMDocument;
+		@$dom->loadHTML($cli->results);
+		$xpath = new DOMXpath($dom);
+		$expression = './/div[contains(@class, "inner-box--item")]';
+		foreach ($xpath->query($expression) as $div) {
+			$node = $xpath->query('.//div[contains(@class, "inner-box--label")]', $div);
+			$label = trim($node->item(0)->nodeValue);
+#error_log("label - '".print_r($label, true)."'");
+			$node = $xpath->query('.//div[contains(@class, "inner-box--link main")]/a/@href', $div);
+			$href = trim($node->item(0)->nodeValue);
+#error_log("resolved href - '".print_r($href, true)."'");
+			$result[] = array('label' => $label, 'href'  => $href);
+		}
+#error_log("resolved lostfilm - '".print_r($result, true)."'");
+		return $result;
+	}
+
 	public function fetch( $history )
 	{
 		$headers = array();
@@ -231,8 +270,20 @@ class rRSS
 							else
 								$item['timestamp'] = 0;
 						}
-						if(!empty($href))
+#error_log("fetch href - '".print_r($href, true)."'");
+						if (parse_url($href)['host'] == 'lostfilm.tv') {
+							foreach(self::convertLostFilm($href) as $lostfilm_item) {
+								$new_item = $item;
+								$new_item['title'] .= ' '.$lostfilm_item['label'];
+								$new_item['link'] = $lostfilm_item['href'];
+								$new_item['guid'] = $lostfilm_item['href'];
+								$this->items[self::removeTegs( $new_item['link'] )] = $new_item;
+#error_log("fetch lostfilm item - '".print_r($new_item, true)."'");
+							}
+						} else if (!empty($href)) {
 							$this->items[self::removeTegs( $href )] = $item;
+#error_log("fetch item - '".print_r($item, true)."'");
+						}
 					}
 				}
 			}
