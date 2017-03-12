@@ -272,6 +272,14 @@ class rRSS
 						}
 #error_log("fetch href - '".print_r($href, true)."'");
 						if (parse_url($href)['host'] == 'lostfilm.tv') {
+							# Following cookies must be set for both lostfilm.tv and www.lostfilm.tv:
+							#   lf_session=XXX;uid=XXX;pass=XXX;
+							# Each single item will be added as a 3 different video quality items
+							# quality marker will be added to the end of each item title
+							# ATM these markers are:
+							#   - SD (means WEB-DLRip)
+							#   - MP4 (means 720p)
+							#   - 1080 (means 1080p)
 							foreach(self::convertLostFilm($href) as $lostfilm_item) {
 								$new_item = $item;
 								$new_item['title'] .= ' '.$lostfilm_item['label'];
