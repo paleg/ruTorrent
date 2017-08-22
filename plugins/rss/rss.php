@@ -117,6 +117,21 @@ class rRSS
 		return($ret);
 	}
 
+	public function convertNewStudio( $href ) {
+#error_log("newstudio.tv convertion");
+		$cli = self::fetchURL(Snoopy::linkencode($href),$this->cookies);
+		if ($cli->status != 200) {
+			return(false);
+		}
+		if (preg_match("/download.php\?id=\d+/", $cli->results, $matches)) {
+#error_log("matches - ".print_r($matches, true));
+			$url = parse_url($href);
+			return $url['scheme'].'://'.$url['host'].'/'.$matches[0];
+		} else {
+			return $href;
+		}
+	}
+
 	public function convertLostFilm( $href ) {
 		$result = array();
 #error_log("lostfilm.tv convertion");
@@ -288,6 +303,16 @@ class rRSS
 								$this->items[self::removeTegs( $new_item['link'] )] = $new_item;
 #error_log("fetch lostfilm item - '".print_r($new_item, true)."'");
 							}
+                        } else if (parse_url($href)['host'] == 'newstudio.tv') {
+							# Following cookies must be set for newstudio.tv
+							#   bb_data=XXX;bb_t=XXX;b=b;
+#error_log("fetch newstudio item - '".print_r($item, true)."'");
+							$new_link = self::convertNewStudio($href);
+#error_log("newstudio new link - '".print_r($new_link, true)."'");
+							$item['link'] = $new_link;
+							$item['guid'] = $new_link;
+							$this->items[self::removeTegs( $new_link )] = $item;
+#error_log("fetch item - '".print_r($item, true)."'");
 						} else if (!empty($href)) {
 							$this->items[self::removeTegs( $href )] = $item;
 #error_log("fetch item - '".print_r($item, true)."'");
