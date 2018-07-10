@@ -704,7 +704,7 @@ var theFormatter =
       					arr[i] = theFormatter.trackerType(arr[i]);
 	      				break;
       				case 'enabled' :
-      				case 'private' : 
+      				case 'private' :
       					arr[i] = theFormatter.yesNo(arr[i]);
       					break;
       				case 'interval' :
@@ -768,9 +768,7 @@ var theSearchEngines =
 {
 	sites:
 	[
-		{ name: 'Mininova', 		url: 'http://www.mininova.org/search/?utorrent&search=' },
 		{ name: 'The Pirate Bay', 	url: 'http://thepiratebay.org/search.php?q=' },
-		{ name: 'IsoHunt', 		url: 'http://isohunt.com/torrents.php?ext=&op=and&ihq=' },
 		{ name: '', 			url: '' },
 		{ name: 'Google', 		url: 'http://google.com/search?q=' }
 	],
@@ -1104,7 +1102,6 @@ rDirectory.prototype.setDirectory = function(name)
 	this.current = name;
 }
 
-// -FL10%FF%86-
 // -SM1310-
 
 var theBTClientVersion =
@@ -1117,13 +1114,13 @@ var theBTClientVersion =
 		"BW" : "BitWombat", "BX" : "BittorrentX", "EB" : "EBit",
 		"DE" : "Deluge", "DP" : "Propogate Data Client", "FC" : "FileCroc",
 		"FT" : "FoxTorrent/RedSwoosh", "GR" : "GetRight", "HN" : "Hydranode",
-		"LC" : "LeechCraft", "LH" : "LH-ABC", "NX" : "Net Transport",
+		"JS" : "justseed.it", "LC" : "LeechCraft", "LH" : "LH-ABC", "NX" : "Net Transport",
 		"MO" : "MonoTorrent", "MR" : "Miro", "MT" : "Moonlight",
 		"OT" : "OmegaTorrent", "PD" : "Pando", "QD" : "QQDownload",
 		"RS" : "Rufus", "RT" : "Retriever", "RZ" : "RezTorrent",
 		"SD" : "Xunlei", "SS" : "SwarmScope", "SZ" : "Shareaza",
 		"S~" : "Shareaza beta", "st" : "SharkTorrent", "TN" : "Torrent .NET",
-		"TS" : "TorrentStorm", "UL" : "uLeecher!", "VG" : "Vagaa",
+		"TS" : "TorrentStorm", "UL" : "uLeecher!", "UW" : "uTorrent Web", "VG" : "Vagaa",
 		"WY" : "Wyzo", "XL" : "Xunlei",
 		"XT" : "XanTorrent", "ZT" : "Zip Torrent",
 		'GS' : "GSTorrent", 'KG' : "KGet", 'ST' : "SymTorrent",
@@ -1148,13 +1145,13 @@ var theBTClientVersion =
 		'AZ' : "Azureus", 'KT' : "KTorrent", "BF" : "BitFlu",
 	        'LW' : "LimeWire", "BB" : "BitBuddy", "BR" : "BitRocket",
 		"CT" : "CTorrent", 'XX' : "Xtorrent", 'LP' : "Lphant",
-		"SK" : "Spark", "tT" : "tTorrent"
+		"SK" : "Spark", "tT" : "tTorrent", "FD" : "Free Download Manager"
 	},
 	shLikeClients:
 	{
 		'O' : "Osprey ", 'Q' : "BTQueue",
         	'A' : "ABC", 'R' : "Tribler", 'S' : "Shad0w",
-	        'T': "BitTornado", 'U': "UPnP NAT Bit Torrent"
+	        'T' : "BitTornado", 'U': "UPnP NAT Bit Torrent"
 	},
 	get: function( origStr )
 	{
@@ -1170,6 +1167,14 @@ var theBTClientVersion =
 		function shChar2( ch )
 		{
 			var codes = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.-";
+			var loc = codes.indexOf(ch);
+			if(loc<0) loc = 0;
+			return(String(loc));
+		}
+
+		function shChar3( ch )
+		{
+			var codes = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz";
 			var loc = codes.indexOf(ch);
 			if(loc<0) loc = 0;
 			return(String(loc));
@@ -1201,9 +1206,11 @@ var theBTClientVersion =
 						ret = cli;
 						break;
 					case 'BT':
+						ret = cli+" "+shChar2(str.charAt(3))+"."+shChar2(str.charAt(4))+"."+shChar2(str.charAt(5))+getMnemonicEnd(str.charAt(6));
+						break;
 					case 'UT':
 					case 'UM':
-						ret = cli+" "+str.charAt(3)+"."+str.charAt(4)+"."+str.charAt(5)+getMnemonicEnd(str.charAt(6));
+						ret = cli+" "+shChar(str.charAt(3))+"."+shChar(str.charAt(4))+"."+shChar(str.charAt(5))+getMnemonicEnd(str.charAt(6));
 						break;
 					case 'TR':
 						if(str.substr(3,2)=='00')
@@ -1247,10 +1254,13 @@ var theBTClientVersion =
 						ret = cli+" "+shChar(str.charAt(3))+"."+shChar(str.charAt(4))+" ("+parseInt(str.substr(5,2),10)+")";
 						break;
 					case 'LP':
-                                                ret = cli+" "+parseInt(str.substr(3,1),10)+"."+parseInt(str.substr(5,2),10);
+						ret = cli+" "+parseInt(str.substr(3,1),10)+"."+parseInt(str.substr(5,2),10);
 						break;
 					case 'tT':
 						ret = cli+" "+shChar2(str.charAt(3))+"."+shChar2(str.charAt(4))+"."+shChar2(str.charAt(5))+"."+shChar2(str.charAt(6));
+						break;
+					case 'FD':
+						ret = cli+" "+shChar3(str.charAt(3))+"."+shChar3(str.charAt(4))+"."+shChar3(str.charAt(5));
 						break;
 					default:
 						var ch = str.charAt(6);
@@ -1307,6 +1317,9 @@ var theBTClientVersion =
 			if(str.match(/^-BT/))
 				ret = "BitTorrent "+str.charAt(3)+"."+parseInt(str.substr(4,2),10)+"."+parseInt(str.substr(6,2),10)+getMnemonicEnd(str.charAt(8));
 			else
+			if(str.match(/^-UT/))
+				ret = "uTorrent "+str.charAt(3)+"."+str.charAt(4)+"."+str.charAt(5);
+			else
 			if(str.match(/^-FG\d\d\d\d/))
 				ret = "FlashGet "+parseInt(str.substr(3,2),10)+"."+parseInt(str.substr(5,2),10);
 			else
@@ -1352,6 +1365,9 @@ var theBTClientVersion =
 			if(str.match(/^AP/))
 				ret = "AllPeers "+str.substr(2,4);
 			else
+			if(str.match(/^-BL\d\d\d\d\d\d/))
+				ret = "BitCometLite";
+			else
 			if(str.match(/^DNA\d\d\d\d\d\d/))
 				ret = "BitTorrent DNA "+parseInt(str.substr(3,2),10)+"."+parseInt(str.substr(5,2),10)+"."+parseInt(str.substr(7,2),10);
 			else
@@ -1381,6 +1397,9 @@ var theBTClientVersion =
 			else
 			if(str.match(/^-WT-/))
 				ret = "BitLet "+str.charAt(4)+"."+str.charAt(5)+"."+str.charAt(6)+"."+str.charAt(7);
+			else
+			if(str.match(/^-?TI?X/))
+				ret = "Tixati "+str.charAt(4)+"."+str.charAt(5)+str.charAt(6);
 			else
 			{
 				var mod = null;
@@ -1426,7 +1445,7 @@ function getCSSRule( selectorText )
 		try {
 		if(document.styleSheets[i].cssRules)
 			crossrule=document.styleSheets[i].cssRules;
-		else 
+		else
 			if(document.styleSheets[i].rules)
 				crossrule=document.styleSheets[i].rules;
 		} catch(e) {}
@@ -1549,42 +1568,6 @@ function getCRC( str, crc )
 	for(var i=0; i<str.length; i++)
 		crc = crc16Tab[((crc>>8)^str.charCodeAt(i))&0xFF]^((crc<<8)&0xFFFF);
 	return(crc);
-}
-
-function json_encode(obj)
-{
-	switch($type(obj))
-	{
-		case "number":
-			return(String(obj));
-		case "boolean":
-			return(obj ? "1" : "0");
-		case "string":
-			return('"'+addslashes(obj)+'"');
-		case "array":
-		{
-		        var s = '';
-		        $.each(obj,function(key,item)
-		        {
-		                if(s.length)
-                			s+=",";
-		        	s += json_encode(item);
-		        });
-			return("["+s+"]");
-		}
-		case "object":
-		{
-		        var s = '';
-		        $.each(obj,function(key,item)
-		        {
-		                if(s.length)
-                			s+=",";
-		        	s += ('"'+key+'":'+json_encode(item));
-		        });
-			return("{"+s+"}");
-		}
-	}
-	return("null");
 }
 
 function strip_tags(input, allowed)
